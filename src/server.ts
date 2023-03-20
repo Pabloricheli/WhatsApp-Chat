@@ -1,4 +1,5 @@
 import express from 'express'
+import axios from 'axios'
 import { PrismaClient } from '@prisma/client'
 
 const token = process.env.TOKEN || 'token'
@@ -8,8 +9,35 @@ app.use(express.json())
 
 // const prisma = new PrismaClient()
 
-app.get('/', function (req, res) {
+app.get('/', async function (req, res) {
   console.log(req)
+  await axios
+    .post(
+      'https://graph.facebook.com/v16.0/118125934538595/messages',
+      {
+        messaging_product: 'whatsapp',
+        to: '+5511981312897',
+        type: 'template',
+        template: {
+          name: 'bem_vindo',
+          language: {
+            code: 'pt_BR'
+          }
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.APP_SECRET}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    .then(response => {
+      console.log(response)
+    })
+    .catch(error => {
+      console.log(error)
+    })
 })
 
 app.post('/', function (req, res) {
