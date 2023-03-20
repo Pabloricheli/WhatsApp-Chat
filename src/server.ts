@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express'
-import bodyParser from 'body-parser'
 import axios from 'axios'
 
 const app = express()
-app.use(bodyParser.json())
-const PORT = process.env.PORT || 1337
+app.use(express.json())
+
+const PORT = process.env.PORT || 3333
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN
 
