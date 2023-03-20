@@ -1,58 +1,56 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
+import bodyParser from 'body-parser'
 import axios from 'axios'
-import { PrismaClient } from '@prisma/client'
-
-const token = process.env.TOKEN || 'token'
 
 const app = express()
-app.use(express.json())
+app.use(bodyParser.json())
+const PORT = process.env.PORT || 1337
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN
 
-// const prisma = new PrismaClient()
+app.listen(PORT, () => console.log(`Webhook is listening on port ${PORT}`))
 
-app.get('/', async function (req, res) {
-  console.log(req)
-  await axios
-    .post(
-      'https://graph.facebook.com/v16.0/118125934538595/messages',
-      {
-        messaging_product: 'whatsapp',
-        to: '+5511981312897',
-        type: 'template',
-        template: {
-          name: 'bem_vindo',
-          language: {
-            code: 'pt_BR'
-          }
-        }
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.APP_SECRET}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    )
-    .then(response => {
-      console.log(response)
-    })
-    .catch(error => {
-      console.log(error)
-    })
+app.post('/webhook', async (req: Request, res: Response) => {
+  try {
+    const { entry } = req.body
+
+    // Check the Incoming webhook message
+    console.log(JSON.stringify(req.body, null, 2))
+
+    if (entry && entry[0].changes && entry[0].changes[0].value.messages) {
+      const {
+        phone_number_id,
+        messages: [{ from, text }]
+      } = entry[0].changes[0].value
+      const msg_body = text.body
+
+      const response = await axios.post(
+        `https://graph.facebook.com/v12.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
+        {
+          messaging_product: 'whatsapp',
+          to: from,
+          text: { body: `Ack: ${msg_body}` }
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      console.log(response.data)
+    }
+    res.sendStatus(200)
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
+  }
 })
 
-app.post('/', function (req, res) {
-  console.log(req.body)
-})
+app.get('/webhook', (req: Request, res: Response) => {
+  const mode = req.query['hub.mode']
+  const token = req.query['hub.verify_token']
+  const challenge = req.query['hub.challenge']
 
-app.get('/webhook', async (req, res) => {
-  console.log(req.body)
-})
-
-app.post('/webhook', async (req, res) => {
-  // const { name, phone } = req.body
-  console.log(req.body)
-})
-
-app.listen(process.env.PORT || 3333, () => {
-  console.log('Server is listening on port 3000')
+  if (mode && token && mode === 'subscribe' && token === VERIFY_TOKEN) {
+    console.log('WEBHOOK_VERIFIED')
+    res.status(200).send(challenge)
+  } else {
+    res.sendStatus(403)
+  }
 })
