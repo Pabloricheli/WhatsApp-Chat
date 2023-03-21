@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express'
 import axios from 'axios'
 
+import getChatGPTResponse from './OpenAi/Response'
+
 const app = express()
 app.use(express.json())
 
@@ -24,12 +26,14 @@ app.post('/webhook', async (req: Request, res: Response) => {
       } = entry[0].changes[0].value
       const msg_body = text.body
 
+      const responseGpt = await getChatGPTResponse(msg_body)
+
       const response = await axios.post(
         `https://graph.facebook.com/v12.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
         {
           messaging_product: 'whatsapp',
           to: from,
-          text: { body: `Ack: ${msg_body}` }
+          text: { body: `${responseGpt}` }
         },
         { headers: { 'Content-Type': 'application/json' } }
       )
