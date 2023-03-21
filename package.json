@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsup src",
     "dev": "tsx src/server.ts",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
     "@prisma/client": "^4.11.0",
