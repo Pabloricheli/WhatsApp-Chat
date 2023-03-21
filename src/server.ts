@@ -12,6 +12,8 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN
 
 app.listen(PORT, () => console.log(`Webhook is listening on port ${PORT}`))
 
+let lastRequestTime = 0
+
 app.post('/webhook', async (req: Request, res: Response) => {
   try {
     const { entry } = req.body
@@ -26,6 +28,16 @@ app.post('/webhook', async (req: Request, res: Response) => {
       } = entry[0].changes[0].value
       const msg_body = text.body
 
+      // Check if the last request was made less than 5 seconds ago
+      const now = Date.now()
+      const timeDiff = now - lastRequestTime
+      if (timeDiff < 5000) {
+        // Wait for the remaining time until 5 seconds have passed
+        const remainingTime = 5000 - timeDiff
+        console.log(`Waiting ${remainingTime}ms before making the request`)
+        await new Promise(resolve => setTimeout(resolve, remainingTime))
+      }
+
       const responseGpt = await getChatGPTResponse(msg_body)
 
       const response = await axios.post(
@@ -37,6 +49,10 @@ app.post('/webhook', async (req: Request, res: Response) => {
         },
         { headers: { 'Content-Type': 'application/json' } }
       )
+
+      // Update the last request time
+      lastRequestTime = Date.now()
+
       console.log(response.data)
     }
     res.sendStatus(200)
