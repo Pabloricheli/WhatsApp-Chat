@@ -6,6 +6,7 @@ import axios from 'axios'
 const PORT = process.env.PORT || 3333
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN
+const OPENAI_TOKEN = process.env.OPENAI_TOKEN
 const ORGANIZATION = process.env.ORGANIZATION
 const PHONEID = process.env.PHONEID
 
@@ -36,14 +37,14 @@ app.post('/webhook', async (req: Request, res: Response) => {
       } = entry[0].changes[0].value
       const msg_body = text.body
 
+      console.log('text body', msg_body)
+
       const responseGpt = await getChatGPTResponse(msg_body)
 
-      console.log(responseGpt)
+      console.log('gpt resposta', responseGpt)
 
       await axios.post(
-        `https://graph.facebook.com/v16.0/${
-          phone_number_id || PHONEID
-        }/messages?access_token=${WHATSAPP_TOKEN}`,
+        `https://graph.facebook.com/v16.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
         {
           messaging_product: 'whatsapp',
           to: from,
@@ -81,7 +82,7 @@ export default async function getChatGPTResponse(
   message: string
 ): Promise<string> {
   const configuration = new Configuration({
-    apiKey: WHATSAPP_TOKEN,
+    apiKey: OPENAI_TOKEN,
     organization: ORGANIZATION
   })
 
