@@ -28,8 +28,6 @@ export default async function getChatGPTResponse(
     const completion = await openai.createCompletion({
       model: 'text-davinci-003',
       prompt: generatePrompt(message),
-      n: 1,
-      stop: null,
       temperature: 0.6
     })
     // const response = await axios.post(
