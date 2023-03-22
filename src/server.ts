@@ -27,6 +27,8 @@ app.post('/webhook', async (req: Request, res: Response) => {
 
       const responseGpt = await getChatGPTResponse(msg_body)
 
+      console.log('chat response', responseGpt)
+
       const response = await axios.post(
         `https://graph.facebook.com/v12.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
         {
