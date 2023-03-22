@@ -1,4 +1,5 @@
 const { Configuration, OpenAIApi } = require('openai')
+import axios from 'axios'
 
 const generatePrompt = (prompt: string) => {
   const capitalizedPrompt =
@@ -16,23 +17,38 @@ const generatePrompt = (prompt: string) => {
 export default async function getChatGPTResponse(
   message: string
 ): Promise<string> {
-  const configuration = new Configuration({
-    apiKey: process.env.OPENAI_TOKEN,
-    organization: process.env.ORGANIZATION
-  })
+  // const configuration = new Configuration({
+  //   apiKey: process.env.OPENAI_TOKEN,
+  //   organization: process.env.ORGANIZATION
+  // })
 
-  const openai = new OpenAIApi(configuration)
+  // const openai = new OpenAIApi(configuration)
 
   try {
-    const completion = await openai.Completion.create({
-      engine: 'text-davinci-003',
-      prompt: generatePrompt(message),
-      n: 1,
-      stop: null,
-      temperature: 0.6
-    })
+    // const completion = await openai.Completion.create({
+    //   engine: 'text-davinci-003',
+    //   prompt: generatePrompt(message),
+    //   n: 1,
+    //   stop: null,
+    //   temperature: 0.6
+    // })
+    const response = await axios.post(
+      `https://api.openai.com/v1/engines/davinci-codex/completions`,
+      {
+        prompt: generatePrompt(message),
+        max_tokens: 500,
+        n: 1,
+        stop: '\n'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.OPENAI_TOKEN}`
+        }
+      }
+    )
 
-    return completion.data.choices[0].text
+    return response.data.choices[0].text
   } catch (error) {
     if (error.response) {
       console.log('erro na geração gpt -- status ', error.response.status)
@@ -42,20 +58,4 @@ export default async function getChatGPTResponse(
       console.log(error.message)
     }
   }
-
-  // const response = await axios.post(
-  //   `https://api.openai.com/v1/engines/davinci-codex/completions`,
-  //   {
-  //     prompt: `Responder: ${message}`,
-  //     max_tokens: 60,
-  //     n: 1,
-  //     stop: '\n'
-  //   },
-  //   {
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       Authorization: `Bearer ${apiKey}`
-  //     }
-  //   }
-  // )
 }
