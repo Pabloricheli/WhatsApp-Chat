@@ -46,12 +46,9 @@ export default async function getChatGPTResponse(
     //   }
     // )
 
-    console.log(
-      'resposta chat',
-      JSON.stringify(completion.data.choices[0].text)
-    )
+    console.log('resposta chat', JSON.stringify(completion.data))
 
-    return JSON.stringify(completion.data.choices[0].text)
+    return completion.data.choices[0].text
   } catch (error) {
     if (error.response) {
       console.log('resnpose', error)
