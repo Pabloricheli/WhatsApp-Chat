@@ -36,7 +36,7 @@ app.get('/webhook', async (req: Request, res: Response) => {
       } = entry[0].changes[0].value
       const msg_body = text.body
 
-      const responseGpt = await getChatGPTResponse('Olá')
+      const responseGpt = await getChatGPTResponse(msg_body)
 
       console.log(responseGpt)
 
@@ -46,7 +46,7 @@ app.get('/webhook', async (req: Request, res: Response) => {
         }/messages?access_token=${WHATSAPP_TOKEN}`,
         {
           messaging_product: 'whatsapp',
-          to: 5511981312897,
+          to: from,
           text: { body: `${responseGpt}` }
         },
         { headers: { 'Content-Type': 'application/json' } }
