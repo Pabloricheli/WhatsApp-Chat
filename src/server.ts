@@ -88,7 +88,7 @@ export default async function getChatGPTResponse(
 
   try {
     const completion = await openai.createCompletion({
-      model: GPT3_PROMPT,
+      model: GPT3_MODEL,
       prompt: generatePrompt(message),
       temperature: 0.6
     })
