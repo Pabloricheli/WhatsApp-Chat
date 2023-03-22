@@ -38,8 +38,8 @@ export default async function getChatGPTResponse(
     return completion.data.choices[0].text
   } catch (error) {
     if (error.response) {
-      console.log(error.response.status)
-      console.log(error.response.data)
+      console.log('erro na geração gpt -- status ', error.response.status)
+      console.log('erro na geração gpt -- data ', error.response.data)
       return error.response.status
     } else {
       console.log(error.message)
