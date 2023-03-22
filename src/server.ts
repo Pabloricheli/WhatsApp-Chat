@@ -8,7 +8,6 @@ const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN
 const OPENAI_TOKEN = process.env.OPENAI_TOKEN
 const ORGANIZATION = process.env.ORGANIZATION
-const PHONEID = process.env.PHONEID
 
 const GPT3_MODEL = 'text-davinci-003'
 
@@ -40,12 +39,8 @@ app.post('/webhook', async (req: Request, res: Response) => {
           `https://graph.facebook.com/v16.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
           {
             messaging_product: 'whatsapp',
-            recipient: {
-              phone_number: from
-            },
-            message: {
-              text: `${responseGpt}`
-            }
+            to: from,
+            text: { body: `${responseGpt}` }
           },
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -79,6 +74,7 @@ const generatePrompt = (prompt: string) => {
   Parcelas até 6x sem juros e 12x com juros,
   6 meses de garantia em todos os pianos, entrega gratis para são paulo capital.
   E mais modelos a venda e informações no site www.casadepianos.com.br.
+  Não responda nada que está fora do escopo de um vendedor.
   Agora responda o cliente que disse:${capitalizedPrompt}`
 }
 
@@ -96,7 +92,7 @@ export default async function getChatGPTResponse(
     const completion = await openai.createCompletion({
       model: GPT3_MODEL,
       prompt: generatePrompt(message),
-      temperature: 0.6,
+      temperature: 0.3,
       max_tokens: 1024
     })
 
