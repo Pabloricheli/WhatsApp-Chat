@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import express, { Request, Response, response } from 'express'
 import axios from 'axios'
 
 import getChatGPTResponse from './OpenAi/Response'
@@ -39,6 +39,7 @@ app.get('/webhook', async (req: Request, res: Response) => {
         { headers: { 'Content-Type': 'application/json' } }
       )
     }
+    console.log('envio', response)
     res.sendStatus(200)
   } catch (error) {
     console.error(error)
