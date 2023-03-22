@@ -1,14 +1,17 @@
-import express, { Request, Response, response } from 'express'
+import express, { Request, Response } from 'express'
+import { Configuration, OpenAIApi } from 'openai'
 import axios from 'axios'
 
-import getChatGPTResponse from './OpenAi/Response'
-
-const app = express()
-app.use(express.json())
-
+// Defina as constantes
 const PORT = process.env.PORT || 3333
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN
+const PHONEID = process.env.PHONEID
+const GPT3_MODEL = 'text-davinci-003'
+const GPT3_PROMPT = `...` // Insira o prompt GPT-3 aqui
+
+const app = express()
+app.use(express.json())
 
 app.listen(PORT, () => console.log(`Webhook is listening on port ${PORT}`))
 
@@ -29,8 +32,10 @@ app.post('/webhook', async (req: Request, res: Response) => {
 
       console.log(responseGpt)
 
-      const response = await axios.post(
-        `https://graph.facebook.com/v12.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
+      await axios.post(
+        `https://graph.facebook.com/v12.0/${
+          PHONEID || phone_number_id
+        }/messages?access_token=${WHATSAPP_TOKEN}`,
         {
           messaging_product: 'whatsapp',
           to: from,
@@ -39,10 +44,8 @@ app.post('/webhook', async (req: Request, res: Response) => {
         { headers: { 'Content-Type': 'application/json' } }
       )
     }
-    console.log('envio', response)
     res.sendStatus(200)
   } catch (error) {
-    console.error(error)
     res.sendStatus(500)
   }
 })
@@ -59,3 +62,46 @@ app.get('/webhook', (req: Request, res: Response) => {
     res.sendStatus(403)
   }
 })
+
+const generatePrompt = (prompt: string) => {
+  const capitalizedPrompt =
+    prompt[0].toUpperCase() + prompt.slice(1).toLowerCase()
+  return `
+    Você é uma atendente com o nome de Ana da loja de pianos cujo o nome é Casa de Pianos respondendo o whatsaap e tem os seguintes pianos em promoção a venda: 
+    "Piano seminovo da marca Fritz Dobbert modelo 126 apartamento no valor de 15 mil reais,Piano usado 3/4 de cauda da marca Essenfelder da década de 1930 no valor de 100 mil reais,Piano usado da marca Schneider com mecanismo harpa/cravo no valor de 15 mil reais, Piano seminovo da marca Suzuki modelo AU200 no valor de 20mil reais.
+    Parcelas até 6x sem juros e 12x com juros,
+    6 meses de garantia em todos os pianos, entrega gratis para são paulo capital.
+    E mais modelos a venda e informações no site www.casadepianos.com.br.
+    Agora responda o cliente que disse: ${capitalizedPrompt}
+  `
+}
+
+export default async function getChatGPTResponse(
+  message: string
+): Promise<any> {
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_TOKEN,
+    organization: process.env.ORGANIZATION
+  })
+
+  const openai = new OpenAIApi(configuration)
+
+  try {
+    const completion = await openai.createCompletion({
+      model: GPT3_PROMPT,
+      prompt: generatePrompt(message),
+      temperature: 0.6
+    })
+
+    return completion.data.choices[0].text
+  } catch (error) {
+    if (error.response) {
+      console.log('resnpose', error)
+      console.log('erro na geração gpt -- status ', error.response.status)
+      console.log('erro na geração gpt -- data ', error.response.data)
+      return error.response.status
+    } else {
+      console.log(error.message)
+    }
+  }
+}
