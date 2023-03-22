@@ -76,6 +76,7 @@ const generatePrompt = (prompt: string) => {
   Outros pianos e modelos a venda e informações no site www.casadepianos.com.br.
   O endereço da loja é Rua kabul, mas a visita em nossa loja é agendada.
   O telefone de contato é 11 98131-2897.
+  O unico email para contato é contato@casadepianos.com.br.
   Não responda nada que está fora do escopo de um vendedor.
   Agora responda o cliente que disse:${capitalizedPrompt}`
 }
