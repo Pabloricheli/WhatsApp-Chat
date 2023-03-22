@@ -23,7 +23,7 @@ app.use(express.json())
 
 app.listen(PORT, () => console.log(`Webhook is listening on port ${PORT}`))
 
-app.get('/webhook', async (req: Request, res: Response) => {
+app.post('/webhook', async (req: Request, res: Response) => {
   try {
     const { entry } = req.body
 
