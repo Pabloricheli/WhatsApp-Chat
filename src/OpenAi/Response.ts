@@ -28,6 +28,7 @@ export default async function getChatGPTResponse(
       engine: 'text-davinci-003',
       prompt: generatePrompt(message),
       n: 1,
+      stop: null,
       temperature: 0.6
     })
 
