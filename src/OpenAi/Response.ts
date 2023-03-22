@@ -16,41 +16,47 @@ const generatePrompt = (prompt: string) => {
 
 export default async function getChatGPTResponse(
   message: string
-): Promise<string> {
-  // const configuration = new Configuration({
-  //   apiKey: process.env.OPENAI_TOKEN,
-  //   organization: process.env.ORGANIZATION
-  // })
+): Promise<any> {
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_TOKEN,
+    organization: process.env.ORGANIZATION
+  })
 
-  // const openai = new OpenAIApi(configuration)
+  const openai = new OpenAIApi(configuration)
 
   try {
-    // const completion = await openai.Completion.create({
-    //   engine: 'text-davinci-003',
-    //   prompt: generatePrompt(message),
-    //   n: 1,
-    //   stop: null,
-    //   temperature: 0.6
-    // })
-    const response = await axios.post(
-      `https://api.openai.com/v1/engines/davinci-codex/completions`,
-      {
-        prompt: generatePrompt(message),
-        max_tokens: 500,
-        n: 1,
-        stop: '\n'
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_TOKEN}`
-        }
-      }
+    const completion = await openai.createCompletion({
+      model: 'text-davinci-003',
+      prompt: generatePrompt(message),
+      n: 1,
+      stop: null,
+      temperature: 0.6
+    })
+    // const response = await axios.post(
+    //   `https://api.openai.com/v1/engines/davinci-codex/completions`,
+    //   {
+    //     prompt: generatePrompt(message),
+    //     max_tokens: 500,
+    //     n: 1,
+    //     stop: null
+    //   },
+    //   {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: `Bearer ${process.env.OPENAI_TOKEN}`
+    //     }
+    //   }
+    // )
+
+    console.log(
+      'resposta chat',
+      JSON.stringify(completion.data.choices[0].text)
     )
 
-    return response.data.choices[0].text
+    return JSON.stringify(completion.data.choices[0].text)
   } catch (error) {
     if (error.response) {
+      console.log('resnpose', error)
       console.log('erro na geração gpt -- status ', error.response.status)
       console.log('erro na geração gpt -- data ', error.response.data)
       return error.response.status

@@ -12,7 +12,7 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN
 
 app.listen(PORT, () => console.log(`Webhook is listening on port ${PORT}`))
 
-app.post('/webhook', async (req: Request, res: Response) => {
+app.get('/webhook', async (req: Request, res: Response) => {
   try {
     const { entry } = req.body
 
@@ -27,7 +27,7 @@ app.post('/webhook', async (req: Request, res: Response) => {
 
       const responseGpt = await getChatGPTResponse(msg_body)
 
-      console.log('chat response', responseGpt)
+      console.log(responseGpt)
 
       const response = await axios.post(
         `https://graph.facebook.com/v12.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
@@ -38,8 +38,6 @@ app.post('/webhook', async (req: Request, res: Response) => {
         },
         { headers: { 'Content-Type': 'application/json' } }
       )
-
-      console.log(response.data)
     }
     res.sendStatus(200)
   } catch (error) {
