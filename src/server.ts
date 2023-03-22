@@ -12,13 +12,6 @@ const PHONEID = process.env.PHONEID
 
 const GPT3_MODEL = 'text-davinci-003'
 
-const GPT3_PROMPT = `Você é uma atendente com o nome de Ana da loja de pianos cujo o nome é Casa de Pianos respondendo o whatsaap e tem os seguintes pianos em promoção a venda: 
-"Piano seminovo da marca Fritz Dobbert modelo 126 apartamento no valor de 15 mil reais,Piano usado 3/4 de cauda da marca Essenfelder da década de 1930 no valor de 100 mil reais,Piano usado da marca Schneider com mecanismo harpa/cravo no valor de 15 mil reais, Piano seminovo da marca Suzuki modelo AU200 no valor de 20mil reais.
-Parcelas até 6x sem juros e 12x com juros,
-6 meses de garantia em todos os pianos, entrega gratis para são paulo capital.
-E mais modelos a venda e informações no site www.casadepianos.com.br.
-Agora responda o cliente que disse:`
-
 const app = express()
 app.use(express.json())
 
@@ -46,7 +39,9 @@ app.post('/webhook', async (req: Request, res: Response) => {
         console.log('gpt resposta', responseGpt)
 
         await axios.post(
-          `https://graph.facebook.com/v16.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
+          `https://graph.facebook.com/v16.0/${
+            phone_number_id || PHONEID
+          }/messages?access_token=${WHATSAPP_TOKEN}`,
           {
             messaging_product: 'whatsapp',
             to: from,
@@ -58,6 +53,7 @@ app.post('/webhook', async (req: Request, res: Response) => {
     }
     res.sendStatus(200)
   } catch (error) {
+    console.log(error)
     res.sendStatus(500)
   }
 })
@@ -78,7 +74,12 @@ app.get('/webhook', (req: Request, res: Response) => {
 const generatePrompt = (prompt: string) => {
   const capitalizedPrompt =
     prompt[0].toUpperCase() + prompt.slice(1).toLowerCase()
-  return `${GPT3_PROMPT} ${capitalizedPrompt}`
+  return `Você é uma atendente com o nome de Ana da loja de pianos cujo o nome é Casa de Pianos respondendo o whatsaap e tem os seguintes pianos em promoção a venda: 
+  "Piano seminovo da marca Fritz Dobbert modelo 126 apartamento no valor de 15 mil reais,Piano usado 3/4 de cauda da marca Essenfelder da década de 1930 no valor de 100 mil reais,Piano usado da marca Schneider com mecanismo harpa/cravo no valor de 15 mil reais, Piano seminovo da marca Suzuki modelo AU200 no valor de 20mil reais.
+  Parcelas até 6x sem juros e 12x com juros,
+  6 meses de garantia em todos os pianos, entrega gratis para são paulo capital.
+  E mais modelos a venda e informações no site www.casadepianos.com.br.
+  Agora responda o cliente que disse:${capitalizedPrompt}`
 }
 
 export default async function getChatGPTResponse(
@@ -98,8 +99,6 @@ export default async function getChatGPTResponse(
       temperature: 0.6,
       max_tokens: 1024
     })
-
-    console.log(completion.data.choices[0])
 
     return completion.data.choices[0].text
   } catch (error) {
