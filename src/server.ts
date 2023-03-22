@@ -35,23 +35,26 @@ app.post('/webhook', async (req: Request, res: Response) => {
         phone_number_id,
         messages: [{ from, text }]
       } = entry[0].changes[0].value
-      const msg_body = text.body
 
-      console.log('text body', msg_body)
+      if (from && text && text.body) {
+        const msg_body = text.body
 
-      const responseGpt = await getChatGPTResponse(msg_body)
+        console.log('text body', msg_body)
 
-      console.log('gpt resposta', responseGpt)
+        const responseGpt = await getChatGPTResponse(msg_body)
 
-      await axios.post(
-        `https://graph.facebook.com/v16.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
-        {
-          messaging_product: 'whatsapp',
-          to: from,
-          text: { body: `${responseGpt}` }
-        },
-        { headers: { 'Content-Type': 'application/json' } }
-      )
+        console.log('gpt resposta', responseGpt)
+
+        await axios.post(
+          `https://graph.facebook.com/v16.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
+          {
+            messaging_product: 'whatsapp',
+            to: from,
+            text: { body: `${responseGpt}` }
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+      }
     }
     res.sendStatus(200)
   } catch (error) {
