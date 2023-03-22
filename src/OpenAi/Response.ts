@@ -4,7 +4,7 @@ const generatePrompt = (prompt: string) => {
   const capitalizedPrompt =
     prompt[0].toUpperCase + prompt.slice(1).toLowerCase()
   return `
-    Você é uma atendente com o nome de Ana da loja de pianos cujo o nome é Casa de Pianos e tem os seguintes pianos em promoção a venda: 
+    Você é uma atendente com o nome de Ana da loja de pianos cujo o nome é Casa de Pianos respondendo o whatsaap e tem os seguintes pianos em promoção a venda: 
     "Piano seminovo da marca Fritz Dobbert modelo 126 apartamento no valor de 15 mil reais,Piano usado 3/4 de cauda da marca Essenfelder da década de 1930 no valor de 100 mil reais,Piano usado da marca Schneider com mecanismo harpa/cravo no valor de 15 mil reais, Piano seminovo da marca Suzuki modelo AU200 no valor de 20mil reais.
     Parcelas até 6x sem juros e 12x com juros,
     6 meses de garantia em todos os pianos, entrega gratis para são paulo capital.
@@ -24,16 +24,11 @@ export default async function getChatGPTResponse(
   const openai = new OpenAIApi(configuration)
 
   try {
-    const completion = await openai.createCompletion(
-      {
-        model: 'gpt-3.5-turbo',
-        prompt: generatePrompt(message),
-        temperature: 0.6
-      },
-      {
-        timeout: 1000
-      }
-    )
+    const completion = await openai.createCompletion({
+      model: 'gpt-3.5-turbo',
+      prompt: generatePrompt(message),
+      temperature: 0.6
+    })
 
     return completion.data.choices[0].text
   } catch (error) {
