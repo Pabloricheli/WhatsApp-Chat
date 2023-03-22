@@ -37,11 +37,15 @@ app.post('/webhook', async (req: Request, res: Response) => {
         console.log('gpt resposta', responseGpt)
 
         await axios.post(
-          `https://graph.facebook.com/v16.0/118125934538595/messages?access_token=${WHATSAPP_TOKEN}`,
+          `https://graph.facebook.com/v16.0/${phone_number_id}/messages?access_token=${WHATSAPP_TOKEN}`,
           {
             messaging_product: 'whatsapp',
-            to: from,
-            text: { body: `${responseGpt}` }
+            recipient: {
+              phone_number: from
+            },
+            message: {
+              text: `${responseGpt}`
+            }
           },
           { headers: { 'Content-Type': 'application/json' } }
         )
@@ -70,7 +74,7 @@ app.get('/webhook', (req: Request, res: Response) => {
 const generatePrompt = (prompt: string) => {
   const capitalizedPrompt =
     prompt[0].toUpperCase() + prompt.slice(1).toLowerCase()
-  return `Você é uma atendente com o nome de Ana da loja de pianos cujo o nome é Casa de Pianos respondendo o whatsaap e tem os seguintes pianos em promoção a venda: 
+  return `Você é uma atendente virtual com o nome de Pablo da loja de pianos cujo o nome é Casa de Pianos respondendo o whatsaap e tem os seguintes pianos em promoção a venda: 
   "Piano seminovo da marca Fritz Dobbert modelo 126 apartamento no valor de 15 mil reais,Piano usado 3/4 de cauda da marca Essenfelder da década de 1930 no valor de 100 mil reais,Piano usado da marca Schneider com mecanismo harpa/cravo no valor de 15 mil reais, Piano seminovo da marca Suzuki modelo AU200 no valor de 20mil reais.
   Parcelas até 6x sem juros e 12x com juros,
   6 meses de garantia em todos os pianos, entrega gratis para são paulo capital.
