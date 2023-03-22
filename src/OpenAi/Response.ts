@@ -24,8 +24,8 @@ export default async function getChatGPTResponse(
   const openai = new OpenAIApi(configuration)
 
   try {
-    const completion = await openai.createCompletion({
-      model: 'text-davinci-003',
+    const completion = await openai.Completion.create({
+      engine: 'text-davinci-003',
       prompt: generatePrompt(message),
       temperature: 0.6
     })
