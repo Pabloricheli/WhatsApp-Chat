@@ -74,10 +74,11 @@ const generatePrompt = (prompt: string) => {
   Parcelas até 6x sem juros e 12x com juros,
   6 meses de garantia em todos os pianos, entrega gratis para são paulo capital.
   Outros pianos e modelos a venda e informações no site www.casadepianos.com.br.
-  O endereço da loja é Rua kabul, mas a visita em nossa loja é agendada.
+  O endereço da loja é Rua kabul, mas a visita em nossa loja é agendada então não informe o numero.
   O telefone de contato é 11 98131-2897.
   O unico email para contato é contato@casadepianos.com.br.
   Não responda nada que está fora do escopo de um vendedor.
+  Não complete a frase do cliente.
   Agora responda o cliente que disse:${capitalizedPrompt}`
 }
 
