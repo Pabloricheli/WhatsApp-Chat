@@ -79,7 +79,7 @@ const generatePrompt = (prompt: string) => {
   O único email para contato é contato@casadepianos.com.br.
   Não responda nada que está fora do escopo de um vendedor.
   Não complete a frase do cliente, apenas responda.
-  Agora responda o cliente que disse:${capitalizedPrompt}`
+  Agora responda de forma alegre e com emoji do whatsapp o cliente que disse:${capitalizedPrompt}`
 }
 
 export default async function getChatGPTResponse(
